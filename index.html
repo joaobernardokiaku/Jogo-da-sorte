@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descubra o Número</title>
+    <style>
+        /*:::::Meu estilo CSS::::*/
+        body {
+            box-sizing: border-box;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(0deg, #77acf1, #86a8cf);
+            align-items: center;
+            justify-content: center;
+            display: flex;
+        }
+
+        section {
+            min-width: 300px;
+            max-width: 1000px;
+            height: auto;
+            position: relative;
+            background-color: #fff;
+            border: 20px solid #fff;
+            box-shadow: 2px 2px 2px 8px #fccf42;
+            border-radius: 10px;
+            align-items: center;
+            margin: 0px;
+        }
+
+        #titulo {
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            position: absolute;
+            top: 70px;
+            font-size: 2.5em;
+            color: #fff;
+        }
+
+        #legenda {
+            color: #fccf42;
+            text-shadow: 1px 1px 2px mediumslateblue;
+            margin-bottom: 50px;
+            font-size: 1.8em;
+        }
+
+        label {
+            font-size: 1.8em;
+        }
+
+        #inNumero {
+            width: 30px;
+            font-size: 1.3em;
+            padding: 5px;
+            text-align: center;
+            border-radius: 20px;
+            border: 1px solid #77acf1;
+            outline: 1px solid #86a8cf;
+        }
+
+        #btApostar,
+        #btJogar {
+            padding: 7px 10px;
+            font-size: 1em;
+            background-color: #77acf1;
+            border: 1px solid #000;
+        }
+
+        #btApostar:hover,
+        #btJogar:hover {
+            background-color: #fccf42;
+            transition: 0.5s;
+        }
+
+        h2 {
+            font-size: 1.5em;
+        }
+
+        h3 {
+            font-style: italic;
+            color: #86a8cf;
+        }
+
+        img {
+            width: 400px;
+            position: relative;
+            float: left;
+        }
+
+        div {
+            position: relative;
+            width: 400px;
+            float: right;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="titulo">Jogo da Sorte!</h1>
+    <section>
+        <img src="descubra-numero.PNG" alt="Jogo dos Números" class="normal">
+        <div>
+            <h1 id="legenda">Descobre o Número</h1>
+            <form>
+                <label for="numero">Número:</label>
+                <input type="text" id="inNumero" name="numero" maxlength="1" autofocus required>
+                <input type="button" value="Apostar" id="btApostar">
+                <input type="button" value="Jogar Novamente" id="btJogar" class="oculta">
+            </form>
+            <h2>
+                Erros:
+                <span id="outErros">0</span>
+            </h2>
+            <h2>
+                Chances:
+                <span id="outChances">6</span>
+            </h2>
+            <hr>
+            <h3 id="outDica" class="italico">
+                Dica: É um números de 1 à 9
+            </h3>
+        </div>
+    </section>
+
+    <script>
+        //Declaração do vetor do escopo global que irá conter os números já apostados
+        var erros = [];
+
+        //Gerar um número aleatório entre 1 e 100
+        var sorteado = Math.floor(Math.random() * 9) + 1;
+
+        //Declarar uma constante com o número de chances
+        const CHANCES = 6;
+
+        //Declaração de uma variável de fala
+        var falar = window.speechSynthesis;
+
+
+        function apostarNumero() {
+            //Criar referência ao campo de entrada e obter seu conteúdo
+            var inNumero = document.getElementById('inNumero');
+            var numero = Number(inNumero.value);
+
+            //Validar o número
+            if (numero <= 0 || numero > 9 || isNaN(numero)) {
+                var numeroInvalido = ('Número inválido! escolha um número diferente de 0.');
+                var fala = new SpeechSynthesisUtterance(numeroInvalido);
+                fala.lang = 'pt-BR';
+                fala.pitch = 1;
+                fala.rate = 1.5;
+                falar.speak(fala);
+
+                alert('Informe um número válido!');
+                inNumero.focus();
+                return;
+            }
+
+            //Referenciar espaço de saídas de dados
+            var outDica = document.getElementById('outDica');
+            var outErros = document.getElementById('outErros');
+            var outChances = document.getElementById('outChances');
+
+            //Se a aposta do jogador for igual ao número sorteado
+            if (numero == sorteado) {
+                var numeroSorteado = ('Parabéns, você digitou o número sorteado: ' + sorteado);
+                var fala = new SpeechSynthesisUtterance(numeroSorteado);
+                fala.lang = 'pt-BR';
+                fala.pitch = 1;
+                fala.rate = 1;
+                falar.speak(fala);
+                alert('Parabéns! Você Acertou!!!');
+                //Troca status dos botôes
+                btApostar.disabled = true;
+                btJogar.className = "exibe";
+                outDica.textContent = "Parabéns, Você venceu !";
+            } else {
+                //Se o número existe no vetor Erros
+                if (erros.indexOf(numero) >= 0) {
+                    var numeroSorteado = ('O número ' + numero + 'já foi apostado, tente outro.');
+                    var fala = new SpeechSynthesisUtterance(numeroSorteado);
+                    fala.lang = 'pt-BR';
+                    fala.pitch = 1;
+                    fala.rate = 1;
+                    falar.speak(fala);
+                    alert('O número ' + numero + ' já foi apostado. Tente novamente com outro número!');
+                } else {
+                    erros.push(numero); //Adicionar número ao vetor
+                    var numErros = erros.length; //Obtém tamanho do vetor
+                    var numeroSorteado = ('Número errado!');
+                    
+                    var fala = new SpeechSynthesisUtterance(numeroSorteado);
+                    fala.lang = 'pt-BR';
+                    fala.pitch = 1;
+                    fala.rate = 1;
+                    falar.speak(fala);
+                    var numChances = CHANCES - numErros; //Calcula número de chances
+
+                    //Exibir nº de Erros, conteúdo do vetor e nº de chances
+                    outErros.textContent = numErros + " (" + erros.join(", ") + ")";
+                    outChances.textContent = numChances;
+                    if (numChances == 0) {
+                        var numeroSorteado = ('Número sorteado é' + sorteado + '. Você perdeu!');
+                        var fala = new SpeechSynthesisUtterance(numeroSorteado);
+                        fala.lang = 'pt-BR';
+                        fala.pitch = 1;
+                        fala.rate = 1;
+                        falar.speak(fala);
+                        alert("Suas chances acabaram...");
+                        btApostar.disabled = true;
+                        btJogar.className = "exibe";
+                        outDica.textContent = "Game Over!!! Número sorteado é: " + sorteado;
+                    } else {
+                        //Usar operador ternário (Condicional) para mensagem da dica
+                        var dica = numero < sorteado ? 'maior' : 'menor';
+                        outDica.textContent = "Dica: Tente um número " + dica + " que " + numero;
+                        var numeroSorteado = ('Tenta um número' + dica + 'que' + numero);
+                        var fala = new SpeechSynthesisUtterance(numeroSorteado);
+                        fala.lang = 'pt-BR';
+                        fala.pitch = 1;
+                        fala.rate = 0.7;
+                        falar.speak(fala);
+                    }
+                }
+            }
+            //Limpar o campo de entrada e posiciona cursor neste campo
+            inNumero.value = "";
+            inNumero.focus();
+        }
+        var btApostar = document.getElementById('btApostar');
+        btApostar.addEventListener('click', apostarNumero);
+
+        function jogarNovamente() {
+            location.reload(); //Recarrega a página (Actualização)
+        }
+        var btJogar = document.getElementById('btJogar');
+        btJogar.addEventListener('click', jogarNovamente);
+    </script>
+</body>
+
+</html>
